@@ -3,9 +3,13 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
+    <bean class="com.retry.utils.SpringContextUtil" scope="singleton" />
+
     <bean id="retry.utils" class="com.retry.utils.Utils">
         <constructor-arg ref="kepler.header.context" />
         <constructor-arg ref="kepler.threads.delegate" />
     </bean>
+
+    <bean class="com.retry.proxy.AutoProxy" />
 
 </beans>

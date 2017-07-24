@@ -11,13 +11,19 @@ import java.lang.reflect.Proxy;
 public class ProxyFactory<T> implements FactoryBean<T> {
 
     private final Class<?> clazz;
-    private final Object obj;
-    private final Utils utils;
+    private Object obj;
+    private Utils utils;
 
-    public ProxyFactory(Class<?> clazz, Object obj, Utils utils) {
-        this.clazz = clazz;
+    public void setObj(Object obj) {
         this.obj = obj;
+    }
+
+    public void setUtils(Utils utils) {
         this.utils = utils;
+    }
+
+    public ProxyFactory(Class<?> clazz) {
+        this.clazz = clazz;
     }
 
     public T getObject() throws Exception {
