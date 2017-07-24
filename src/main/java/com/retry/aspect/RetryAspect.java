@@ -2,6 +2,7 @@ package com.retry.aspect;
 
 import com.kepler.header.Headers;
 import com.kepler.header.HeadersContext;
+import com.retry.annotation.Retryable;
 import com.retry.config.PropertiesUtils;
 import com.retry.dao.RetryDao;
 import com.retry.proxy.AsyncHandler;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
+import java.lang.reflect.Method;
 import java.util.UUID;
 
 /**
@@ -31,14 +33,33 @@ public class RetryAspect {
     @Autowired
     private HeadersContext headersContext;
 
-    @Pointcut("@annotation(com.retry.annotation.Retryable)")
+    @Pointcut("@within(com.kepler.annotation.Autowired)")
     public void retry(){}
 
     @Around("retry()")
     public Object around(ProceedingJoinPoint joinPoint) {
-        String uuid = headersContext.get().get(AsyncHandler.STR_UUID);
-        int resultCount = retryDao.insert(TABLE, uuid);
-        if (resultCount > 0) {
+        //判断对象上的接口是否有@retryable注解
+        boolean isRetry = false;
+        Class<?>[] interfaces = joinPoint.getTarget().getClass().getInterfaces();
+        for (Class interfc : interfaces) {
+            for (Method method : interfc.getMethods()) {
+                if (method.getAnnotation(Retryable.class) != null) {
+                    isRetry = true;
+                    break;
+                }
+            }
+        }
+        if (isRetry) {
+            String uuid = headersContext.get().get(AsyncHandler.STR_UUID);
+            int resultCount = retryDao.insert(TABLE, uuid);
+            if (resultCount > 0) {
+                try {
+                    return joinPoint.proceed();
+                } catch (Throwable throwable) {
+                    throwable.printStackTrace();
+                }
+            }
+        } else {
             try {
                 return joinPoint.proceed();
             } catch (Throwable throwable) {
