@@ -49,20 +49,11 @@ public class RetryAspect {
         }
         //判断对象的接口方法是否有@retryable注解
         boolean isRetry = false;
-        boolean isTx = false;
         Class<?>[] interfaces = joinPoint.getTarget().getClass().getInterfaces();
         for (Class interfc : interfaces) {
             try {
                 Method method = interfc.getMethod(joinPoint.getSignature().getName(), params);
                 if (method.getAnnotation(Retryable.class) != null) {
-                    //判断对象方法上是否有tx注解
-                    try {
-                        Method method1 = joinPoint.getTarget().getClass().getMethod(joinPoint.getSignature().getName(), params);
-                        if (method1.getAnnotation(Transactional.class) != null) {
-                            isTx = true;
-                        }
-                    }catch (NoSuchMethodException e) {
-                    }
                     isRetry = true;
                     break;
                 }
@@ -70,34 +61,21 @@ public class RetryAspect {
             }
         }
         if (isRetry) {
-            if (isTx) {
-                String uuid = headersContext.get().get(AsyncHandler.STR_UUID);
-                int resultCount = retryDao.insert(TABLE, uuid);
-                if (resultCount > 0) {
-                    try {
-                        return joinPoint.proceed();
-                    } catch (Throwable throwable) {
-                        throw new RuntimeException(throwable.getMessage());
-                    }
-                }
-                return true;
-            } else {
-                return transactionTemplate.execute(new TransactionCallback() {
-                    @Override
-                    public Object doInTransaction(TransactionStatus transactionStatus) {
-                        String uuid = headersContext.get().get(AsyncHandler.STR_UUID);
-                        int resultCount = retryDao.insert(TABLE, uuid);
-                        if (resultCount > 0) {
-                            try {
-                                return joinPoint.proceed();
-                            } catch (Throwable throwable) {
-                                throw new RuntimeException(throwable.getMessage());
-                            }
+            return transactionTemplate.execute(new TransactionCallback() {
+                @Override
+                public Object doInTransaction(TransactionStatus transactionStatus) {
+                    String uuid = headersContext.get().get(AsyncHandler.STR_UUID);
+                    int resultCount = retryDao.insert(TABLE, uuid);
+                    if (resultCount > 0) {
+                        try {
+                            return joinPoint.proceed();
+                        } catch (Throwable throwable) {
+                            throw new RuntimeException(throwable.getMessage());
                         }
-                        return true;
                     }
+                    return true;
+                }
                 });
-            }
         } else {
             try {
                 return joinPoint.proceed();
