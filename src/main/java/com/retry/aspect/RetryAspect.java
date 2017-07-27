@@ -10,6 +10,7 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.TransactionStatus;
@@ -28,9 +29,10 @@ import java.lang.reflect.Modifier;
 @Order(Integer.MAX_VALUE)
 public class RetryAspect {
 
-    private static final String TABLE = PropertiesUtils.get("retry.table", "retry");
+    private static final String TABLE = PropertiesUtils.get("db.table", "retry");
 
     @Autowired
+    @Qualifier("retry_transactionTemplate")
     private TransactionTemplate transactionTemplate;
     @Autowired
     private RetryDao retryDao;
@@ -75,7 +77,7 @@ public class RetryAspect {
                     }
                     return true;
                 }
-                });
+            });
         } else {
             try {
                 return joinPoint.proceed();

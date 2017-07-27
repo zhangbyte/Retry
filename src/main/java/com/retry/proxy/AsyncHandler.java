@@ -50,7 +50,7 @@ public class AsyncHandler implements InvocationHandler {
                 public Boolean call() throws Exception {
                     try {
                         // 模拟网络延迟
-                        Thread.sleep(4000);
+//                        Thread.sleep(4000);
                         return (Boolean) method.invoke(obj, args);
                     } catch (Throwable throwable) {
                         throwable.printStackTrace();
@@ -66,6 +66,7 @@ public class AsyncHandler implements InvocationHandler {
                 e.printStackTrace();
             } catch (TimeoutException e) {
                 // 超时
+//                result.cancel(true);
                 timeout += 1000;
             }
             times++;

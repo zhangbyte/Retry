@@ -14,13 +14,6 @@
 
     <aop:aspectj-autoproxy proxy-target-class="true"/>
 
-    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
-        <property name="basePackage" value="com.retry.dao" />
-    </bean>
-
-    <bean id="transactionTemplate"
-          class="org.springframework.transaction.support.TransactionTemplate">
-        <property name="transactionManager" ref="transactionManager" />
-    </bean>
+    <import resource="retry-db.xml" />
 
 </beans>
