@@ -4,7 +4,7 @@ import com.kepler.header.HeadersContext;
 import com.retry.annotation.Retryable;
 import com.retry.config.PropertiesUtils;
 import com.retry.dao.RetryDao;
-import com.retry.proxy.AsyncHandler;
+import com.retry.proxy.RetryHandler;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -14,15 +14,15 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 
 /**
  * Created by zbyte on 17-7-20.
+ *
+ * 服务端切面，对kepler的@Autowired进行拦截，并织入幂等判断逻辑
  */
 @Component
 @Aspect
@@ -66,7 +66,7 @@ public class RetryAspect {
             return transactionTemplate.execute(new TransactionCallback() {
                 @Override
                 public Object doInTransaction(TransactionStatus transactionStatus) {
-                    String uuid = headersContext.get().get(AsyncHandler.STR_UUID);
+                    String uuid = headersContext.get().get(RetryHandler.STR_UUID);
                     int resultCount = retryDao.insert(TABLE, uuid);
                     if (resultCount > 0) {
                         try {

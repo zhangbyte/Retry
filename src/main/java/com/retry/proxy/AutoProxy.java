@@ -11,6 +11,8 @@ import org.springframework.beans.factory.support.RootBeanDefinition;
 
 /**
  * Created by zbyte on 17-7-24.
+ *
+ * 自动生成kepler代理的代理
  */
 public class AutoProxy {
 
@@ -36,10 +38,13 @@ public class AutoProxy {
             // 构造 retry proxy
             RootBeanDefinition beanDefinition = new RootBeanDefinition(ProxyFactory.class);
             ConstructorArgumentValues args = new ConstructorArgumentValues();
-            args.addGenericArgumentValue(interfc);
+            args.addIndexedArgumentValue(0, interfc);
+            args.addIndexedArgumentValue(1, new RuntimeBeanReference(beanId));
+            args.addIndexedArgumentValue(2, new RuntimeBeanReference("kepler.header.context"));
+            args.addIndexedArgumentValue(3, new RuntimeBeanReference("clientDao"));
             beanDefinition.setConstructorArgumentValues(args);
-            beanDefinition.getPropertyValues().addPropertyValue("obj", new RuntimeBeanReference(beanId));
-            beanDefinition.getPropertyValues().addPropertyValue("utils", new RuntimeBeanReference("retry.utils"));
+//            beanDefinition.getPropertyValues().addPropertyValue("obj", new RuntimeBeanReference(beanId));
+//            beanDefinition.getPropertyValues().addPropertyValue("utils", new RuntimeBeanReference("retry.utils"));
             // 设置优先注入
             beanDefinition.setPrimary(true);
             beanFactory.registerBeanDefinition(beanId+"_proxy", beanDefinition);

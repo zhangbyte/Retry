@@ -1,6 +1,7 @@
 package com.retry.proxy;
 
-import com.retry.utils.Utils;
+import com.kepler.header.HeadersContext;
+import com.retry.dao.ClientDao;
 import org.springframework.beans.factory.FactoryBean;
 
 import java.lang.reflect.Proxy;
@@ -11,23 +12,19 @@ import java.lang.reflect.Proxy;
 public class ProxyFactory<T> implements FactoryBean<T> {
 
     private final Class<?> clazz;
-    private Object obj;
-    private Utils utils;
+    private final Object obj;
+    private final HeadersContext headersContext;
+    private final ClientDao clientDao;
 
-    public void setObj(Object obj) {
-        this.obj = obj;
-    }
-
-    public void setUtils(Utils utils) {
-        this.utils = utils;
-    }
-
-    public ProxyFactory(Class<?> clazz) {
+    public ProxyFactory(Class<?> clazz, Object obj, HeadersContext headersContext, ClientDao clientDao) {
         this.clazz = clazz;
+        this.obj = obj;
+        this.headersContext = headersContext;
+        this.clientDao = clientDao;
     }
 
     public T getObject() throws Exception {
-        AsyncHandler handler = new AsyncHandler(obj, utils.getHeadersContext(), utils.getExecutor());
+        RetryHandler handler = new RetryHandler(obj, headersContext, clientDao);
         return (T)Proxy.newProxyInstance(clazz.getClassLoader(), new Class[]{clazz}, handler);
     }
 

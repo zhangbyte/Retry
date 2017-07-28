@@ -5,11 +5,8 @@
 
     <bean class="com.retry.utils.SpringContextUtil" scope="singleton" />
 
-    <bean id="retry.utils" class="com.retry.utils.Utils">
-        <constructor-arg ref="kepler.header.context" />
-        <constructor-arg ref="kepler.threads.delegate" />
-    </bean>
-
     <bean class="com.retry.proxy.AutoProxy" />
+
+    <import resource="retry-db.xml" />
 
 </beans>
