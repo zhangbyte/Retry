@@ -10,6 +10,11 @@
 
     <import resource="retry-db.xml" />
 
+    <!--retry task-->
+    <bean id="retry_task" class="com.retry.scheduletask.RetryTask">
+        <property name="clientDao" ref="clientDao"/>
+    </bean>
+
     <!--线程池-->
     <bean id="retry_executor" class="com.retry.scheduletask.RetryExecutor" />
 
@@ -29,6 +34,7 @@
         <constructor-arg ref="kepler.zookeeper" />
         <constructor-arg ref="retry_executor" />
         <constructor-arg ref="retry_session" />
+        <constructor-arg ref="retry_task" />
         <property name="retryWatcher" ref="retry_watcher" />
         <property name="rootWatcher" ref="retry_root_watchar" />
     </bean>

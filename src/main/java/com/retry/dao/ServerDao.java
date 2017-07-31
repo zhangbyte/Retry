@@ -6,7 +6,7 @@ import org.apache.ibatis.annotations.Param;
 /**
  * Created by zbyte on 17-7-20.
  */
-public interface RetryDao {
+public interface ServerDao {
     /**
      * 插入uuid
      * @param uuid

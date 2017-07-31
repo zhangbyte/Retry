@@ -19,13 +19,15 @@ public class TaskHandler {
     private final ZkClient zkClient;
     private final RetryExecutor executor;
     private final Session session;
+    private final RetryTask retryTask;
 
     private RetryWatcher retryWatcher;
 
-    public TaskHandler(ZkClient zkClient, RetryExecutor executor, Session session) {
+    public TaskHandler(ZkClient zkClient, RetryExecutor executor, Session session, RetryTask retryTask) {
         this.zkClient = zkClient;
         this.executor = executor;
         this.session = session;
+        this.retryTask = retryTask;
         init();
     }
 
@@ -41,7 +43,7 @@ public class TaskHandler {
 
         if (zkClient.zoo().getSessionId() == session.getSessionId()) {
             // 断线重连
-            executor.execute(new RetryTask());
+            executor.execute(retryTask);
             return;
         }
 
@@ -53,7 +55,7 @@ public class TaskHandler {
             if (stat == null) {
                 zkClient.create(PATH, PATH.getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
                 session.setSessionId(zkClient.zoo().getSessionId());
-                executor.execute(new RetryTask());
+                executor.execute(retryTask);
             }
         } catch (Exception e) {
             e.printStackTrace();

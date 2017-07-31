@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 public class RetryExecutor implements Executor{
 
     private final static long INITIAL_DELAY = 0;
-    private final static long PERIOD = 5;
+    private final static long PERIOD = 10;
 
     private ScheduledExecutorService executor = null;
 

@@ -3,7 +3,7 @@ package com.retry.aspect;
 import com.kepler.header.HeadersContext;
 import com.retry.annotation.Retryable;
 import com.retry.config.PropertiesUtils;
-import com.retry.dao.RetryDao;
+import com.retry.dao.ServerDao;
 import com.retry.proxy.RetryHandler;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -35,7 +35,7 @@ public class RetryAspect {
     @Qualifier("retry_transactionTemplate")
     private TransactionTemplate transactionTemplate;
     @Autowired
-    private RetryDao retryDao;
+    private ServerDao serverDao;
     @Autowired
     private HeadersContext headersContext;
 
@@ -67,7 +67,7 @@ public class RetryAspect {
                 @Override
                 public Object doInTransaction(TransactionStatus transactionStatus) {
                     String uuid = headersContext.get().get(RetryHandler.STR_UUID);
-                    int resultCount = retryDao.insert(TABLE, uuid);
+                    int resultCount = serverDao.insert(TABLE, uuid);
                     if (resultCount > 0) {
                         try {
                             return joinPoint.proceed();
