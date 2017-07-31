@@ -1,12 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <bean class="com.retry.utils.SpringContextUtil" scope="singleton" />
+    <bean class="com.retry.utils.SpringContextUtil" />
 
     <bean class="com.retry.proxy.AutoProxy" />
 
     <import resource="retry-db.xml" />
+
+    <!--线程池-->
+    <bean id="retry_executor" class="com.retry.scheduletask.RetryExecutor" />
+
+    <!--zk监听器-->
+    <bean id="retry_watcher" class="com.retry.zookeeper.RetryWatcher">
+        <property name="taskHandler" ref="retry_handler" />
+    </bean>
+    <bean id="retry_root_watchar" class="com.retry.zookeeper.RootWatcher">
+        <constructor-arg ref="retry_executor" />
+        <property name="taskHandler" ref="retry_handler" />
+    </bean>
+
+    <!--zk session-->
+    <bean id="retry_session" class="com.retry.zookeeper.Session" />
+
+    <bean id="retry_handler" class="com.retry.scheduletask.TaskHandler">
+        <constructor-arg ref="kepler.zookeeper" />
+        <constructor-arg ref="retry_executor" />
+        <constructor-arg ref="retry_session" />
+        <property name="retryWatcher" ref="retry_watcher" />
+        <property name="rootWatcher" ref="retry_root_watchar" />
+    </bean>
 
 </beans>
