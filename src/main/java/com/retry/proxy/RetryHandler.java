@@ -35,7 +35,7 @@ public class RetryHandler implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        if (method.getAnnotation(Retryable.class) == null) {
+        if (method.getAnnotation(Retryable.class) == null || headersContext.get().get(STR_UUID) != null) {
             return method.invoke(obj, args);
         } else {
             String uuid = UUID.randomUUID().toString();

@@ -43,9 +43,7 @@ public class AutoProxy {
             args.addIndexedArgumentValue(2, new RuntimeBeanReference("kepler.header.context"));
             args.addIndexedArgumentValue(3, new RuntimeBeanReference("clientDao"));
             beanDefinition.setConstructorArgumentValues(args);
-//            beanDefinition.getPropertyValues().addPropertyValue("obj", new RuntimeBeanReference(beanId));
-//            beanDefinition.getPropertyValues().addPropertyValue("utils", new RuntimeBeanReference("retry.utils"));
-            // 设置优先注入
+           // 设置优先注入
             beanDefinition.setPrimary(true);
             beanFactory.registerBeanDefinition(beanId+"_proxy", beanDefinition);
         }

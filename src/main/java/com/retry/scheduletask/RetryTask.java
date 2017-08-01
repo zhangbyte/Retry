@@ -1,8 +1,11 @@
 package com.retry.scheduletask;
 
+import com.kepler.header.HeadersContext;
+import com.kepler.header.impl.LazyHeaders;
 import com.retry.config.PropertiesUtils;
 import com.retry.dao.ClientDao;
 import com.retry.entity.InvokeMsg;
+import com.retry.proxy.RetryHandler;
 import com.retry.utils.SpringContextUtil;
 
 import java.io.ByteArrayInputStream;
@@ -20,9 +23,14 @@ public class RetryTask implements Runnable{
     private static final String TABLE = PropertiesUtils.get("client.db.table", "retry");
 
     private ClientDao clientDao;
+    private HeadersContext headersContext;
 
     public void setClientDao(ClientDao clientDao) {
         this.clientDao = clientDao;
+    }
+
+    public void setHeadersContext(HeadersContext headersContext) {
+        this.headersContext = headersContext;
     }
 
     @Override
@@ -50,9 +58,14 @@ public class RetryTask implements Runnable{
             Object obj = SpringContextUtil.getApplicationContext().getBean(cls);
             // 获取方法
             Method method = cls.getMethod(i.getMethod(), params);
+            // 往headers中放入uuid
+            headersContext.set(new LazyHeaders().put(RetryHandler.STR_UUID, i.getUuid()));
             // 执行方法
-            return method.invoke(obj, args);
+            Object res = method.invoke(obj, args);
+            // 删除记录
+            clientDao.deleteById(TABLE, i.getUuid());
 
+            return res;
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -62,7 +75,7 @@ public class RetryTask implements Runnable{
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         } catch (InvocationTargetException e) {
-            e.printStackTrace();
+            System.out.println("执行失败！！！！！！！！！！！");
         }
 
         return null;

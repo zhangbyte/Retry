@@ -1,6 +1,7 @@
 package com.retry.dao;
 
 import com.retry.entity.InvokeMsg;
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -25,6 +26,14 @@ public interface ClientDao {
     int insert(@Param("tablename") String tablename, @Param("uuid") String uuid,
                @Param("interfc") String interfc, @Param("method") String method, @Param("args") byte[] args);
 
+    /**
+     * 查询远端调用信息
+     * @param tablename
+     * @return
+     */
     @Select("select uuid,interfc,method,args from ${tablename}")
     List<InvokeMsg> selectAll(@Param("tablename") String tablename);
+
+    @Delete("delete from ${tablename} where uuid = #{uuid}")
+    int deleteById(@Param("tablename") String tablename, @Param("uuid") String uuid);
 }

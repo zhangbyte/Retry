@@ -13,6 +13,7 @@
     <!--retry task-->
     <bean id="retry_task" class="com.retry.scheduletask.RetryTask">
         <property name="clientDao" ref="clientDao"/>
+        <property name="headersContext" ref="kepler.header.context" />
     </bean>
 
     <!--线程池-->
