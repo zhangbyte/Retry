@@ -47,11 +47,9 @@ public class TaskHandler {
             return;
         }
 
-        System.out.println("zkClient: "+zkClient);
         Stat stat = null;
         try {
             stat = exists();
-            System.out.println("stat: "+stat);
             if (stat == null) {
                 zkClient.create(PATH, PATH.getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
                 session.setSessionId(zkClient.zoo().getSessionId());
