@@ -68,9 +68,10 @@ public class RetryTask implements Runnable{
             Object res = method.invoke(obj, args);
             // 删除记录
             clientDao.deleteById(TABLE, i.getUuid());
-
             return res;
         } catch (Exception e) {
+            // 增加一次处理次数
+            clientDao.updateTimes(TABLE, i.getUuid());
             RetryTask.LOGGER.warn(e);
         }
 

@@ -1,10 +1,7 @@
 package com.retry.client.dao;
 
 import com.retry.client.entity.InvokeMsg;
-import org.apache.ibatis.annotations.Delete;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 
 import java.util.List;
 
@@ -22,7 +19,7 @@ public interface ClientDao {
      * @param args
      * @return
      */
-    @Insert("insert into ${tablename} values(#{uuid}, #{interfc}, #{method}, #{args})")
+    @Insert("insert into ${tablename} (uuid, interfc, method, args) values(#{uuid}, #{interfc}, #{method}, #{args})")
     int insert(@Param("tablename") String tablename, @Param("uuid") String uuid,
                @Param("interfc") String interfc, @Param("method") String method, @Param("args") byte[] args);
 
@@ -42,4 +39,13 @@ public interface ClientDao {
      */
     @Delete("delete from ${tablename} where uuid = #{uuid}")
     int deleteById(@Param("tablename") String tablename, @Param("uuid") String uuid);
+
+    /**
+     * 更新处理次数
+     * @param tablename
+     * @param uuid
+     * @return
+     */
+    @Update("update ${tablename} set times = times + 1 where uuid = #{uuid}")
+    int updateTimes(@Param("tablename") String tablename, @Param("uuid") String uuid);
 }

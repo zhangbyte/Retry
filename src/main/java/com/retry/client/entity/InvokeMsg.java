@@ -17,6 +17,8 @@ public class InvokeMsg {
 
     private byte[] args;
 
+    private long times;
+
     public String getUuid() {
         return uuid;
     }
@@ -49,6 +51,14 @@ public class InvokeMsg {
         this.args = args;
     }
 
+    public long getTimes() {
+        return times;
+    }
+
+    public void setTimes(long times) {
+        this.times = times;
+    }
+
     @Override
     public String toString() {
         return "InvokeMsg{" +
@@ -56,6 +66,7 @@ public class InvokeMsg {
                 ", interfc='" + interfc + '\'' +
                 ", method='" + method + '\'' +
                 ", args=" + Arrays.toString(args) +
+                ", times=" + times +
                 '}';
     }
 }
