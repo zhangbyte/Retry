@@ -1,7 +1,7 @@
-package com.retry.proxy;
+package com.retry.client.proxy;
 
 import com.kepler.header.HeadersContext;
-import com.retry.dao.ClientDao;
+import com.retry.client.dao.ClientDao;
 import org.springframework.beans.factory.FactoryBean;
 
 import java.lang.reflect.Proxy;

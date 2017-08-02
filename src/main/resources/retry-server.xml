@@ -10,10 +10,15 @@
        http://www.springframework.org/schema/aop
        http://www.springframework.org/schema/aop/spring-aop.xsd">
 
-    <context:component-scan base-package="com.retry.aspect" />
-
+    <!--aop-->
+    <context:component-scan base-package="com.retry.server.aspect" />
     <aop:aspectj-autoproxy proxy-target-class="true"/>
 
+    <!--mybatis-->
     <import resource="retry-db.xml" />
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="sqlSessionFactoryBeanName" value="retry_sqlSessionFactory" />
+        <property name="basePackage" value="com.retry.server.dao" />
+    </bean>
 
 </beans>

@@ -1,6 +1,6 @@
-package com.retry.dao;
+package com.retry.client.dao;
 
-import com.retry.entity.InvokeMsg;
+import com.retry.client.entity.InvokeMsg;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Param;
@@ -34,6 +34,12 @@ public interface ClientDao {
     @Select("select uuid,interfc,method,args from ${tablename}")
     List<InvokeMsg> selectAll(@Param("tablename") String tablename);
 
+    /**
+     * 删除已处理的远端调用
+     * @param tablename
+     * @param uuid
+     * @return
+     */
     @Delete("delete from ${tablename} where uuid = #{uuid}")
     int deleteById(@Param("tablename") String tablename, @Param("uuid") String uuid);
 }

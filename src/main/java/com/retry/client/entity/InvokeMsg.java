@@ -1,9 +1,11 @@
-package com.retry.entity;
+package com.retry.client.entity;
 
 import java.util.Arrays;
 
 /**
  * Created by zbyte on 17-7-31.
+ *
+ * 远端调用信息
  */
 public class InvokeMsg {
 

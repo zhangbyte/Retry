@@ -11,6 +11,8 @@ import java.util.Properties;
 
 /**
  * Created by zbyte on 17-7-21.
+ *
+ * 获取retry.conf配置信息
  */
 public class PropertiesUtils {
 

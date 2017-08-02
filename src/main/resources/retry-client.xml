@@ -13,35 +13,40 @@
     <bean class="com.retry.utils.SpringContextUtil" />
 
     <!--aop-->
-    <context:component-scan base-package="com.retry.aspect" />
+    <context:component-scan base-package="com.retry.client.aspect" />
     <aop:aspectj-autoproxy />
 
-    <bean class="com.retry.proxy.AutoProxy" />
+    <bean class="com.retry.client.proxy.AutoProxy" />
 
+    <!--mybatis-->
     <import resource="retry-db.xml" />
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="sqlSessionFactoryBeanName" value="retry_sqlSessionFactory" />
+        <property name="basePackage" value="com.retry.client.dao" />
+    </bean>
 
     <!--retry task-->
-    <bean id="retry_task" class="com.retry.scheduletask.RetryTask">
+    <bean id="retry_task" class="com.retry.client.task.RetryTask">
         <property name="clientDao" ref="clientDao"/>
         <property name="headersContext" ref="kepler.header.context" />
     </bean>
 
     <!--线程池-->
-    <bean id="retry_executor" class="com.retry.scheduletask.RetryExecutor" />
+    <bean id="retry_executor" class="com.retry.client.task.RetryExecutor" />
 
     <!--zk监听器-->
-    <bean id="retry_watcher" class="com.retry.zookeeper.RetryWatcher">
+    <bean id="retry_watcher" class="com.retry.client.zookeeper.RetryWatcher">
         <property name="taskHandler" ref="retry_handler" />
     </bean>
-    <bean id="retry_root_watchar" class="com.retry.zookeeper.RootWatcher">
+    <bean id="retry_root_watchar" class="com.retry.client.zookeeper.RootWatcher">
         <constructor-arg ref="retry_executor" />
         <property name="taskHandler" ref="retry_handler" />
     </bean>
 
     <!--zk session-->
-    <bean id="retry_session" class="com.retry.zookeeper.Session" />
+    <bean id="retry_session" class="com.retry.client.zookeeper.Session" />
 
-    <bean id="retry_handler" class="com.retry.scheduletask.TaskHandler">
+    <bean id="retry_handler" class="com.retry.client.task.TaskHandler">
         <constructor-arg ref="kepler.zookeeper" />
         <constructor-arg ref="retry_executor" />
         <constructor-arg ref="retry_session" />

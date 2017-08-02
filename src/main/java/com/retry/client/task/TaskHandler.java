@@ -1,9 +1,11 @@
-package com.retry.scheduletask;
+package com.retry.client.task;
 
 import com.kepler.zookeeper.ZkClient;
-import com.retry.zookeeper.RetryWatcher;
-import com.retry.zookeeper.RootWatcher;
-import com.retry.zookeeper.Session;
+import com.retry.client.zookeeper.RetryWatcher;
+import com.retry.client.zookeeper.RootWatcher;
+import com.retry.client.zookeeper.Session;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.data.Stat;
@@ -15,6 +17,8 @@ import org.apache.zookeeper.data.Stat;
 public class TaskHandler {
 
     private final static String PATH = "/retry";
+
+    private final static Log LOGGER = LogFactory.getLog(TaskHandler.class);
 
     private final ZkClient zkClient;
     private final RetryExecutor executor;
@@ -39,14 +43,15 @@ public class TaskHandler {
         zkClient.zoo().register(rootWatcher);
     }
 
+    /**
+     * 初始化，尝试注册节点并启动定时任务
+     */
     public void init() {
-
         if (zkClient.zoo().getSessionId() == session.getSessionId()) {
             // 断线重连
             executor.execute(retryTask);
             return;
         }
-
         Stat stat = null;
         try {
             stat = exists();
@@ -56,11 +61,21 @@ public class TaskHandler {
                 executor.execute(retryTask);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error(e);
         }
     }
 
-    public Stat exists() throws Exception {
-        return zkClient.exists(PATH, retryWatcher);
+    /**
+     * 保持监听
+     * @return
+     * @throws Exception
+     */
+    public Stat exists(){
+        try {
+            return zkClient.exists(PATH, retryWatcher);
+        } catch (Exception e) {
+            LOGGER.error(e);
+        }
+        return null;
     }
 }

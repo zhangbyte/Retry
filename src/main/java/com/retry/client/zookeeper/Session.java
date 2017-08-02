@@ -1,4 +1,4 @@
-package com.retry.zookeeper;
+package com.retry.client.zookeeper;
 
 /**
  * Created by zbyte on 17-7-31.

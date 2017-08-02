@@ -1,7 +1,7 @@
-package com.retry.zookeeper;
+package com.retry.client.zookeeper;
 
-import com.retry.scheduletask.RetryExecutor;
-import com.retry.scheduletask.TaskHandler;
+import com.retry.client.task.RetryExecutor;
+import com.retry.client.task.TaskHandler;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 
@@ -25,13 +25,13 @@ public class RootWatcher implements Watcher {
     @Override
     public void process(WatchedEvent watchedEvent) {
         if (Event.KeeperState.Disconnected.equals(watchedEvent.getState())) {
-            System.out.println("与zk断开连接，停止retry job");
+            // 与zk断开连接，停止retry job
             executor.shutdown();
         }
 
         if (Event.KeeperState.SyncConnected.equals(watchedEvent.getState())
                 && Event.EventType.None.equals(watchedEvent.getType())) {
-            System.out.println("与zk连接成功");
+            // 与zk连接成功,初始化定时任务处理器
             taskHandler.init();
         }
 

@@ -1,6 +1,6 @@
-package com.retry.zookeeper;
+package com.retry.client.zookeeper;
 
-import com.retry.scheduletask.TaskHandler;
+import com.retry.client.task.TaskHandler;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 
@@ -17,17 +17,11 @@ public class RetryWatcher implements Watcher {
 
     @Override
     public void process(WatchedEvent watchedEvent) {
-
         if (Event.EventType.NodeDeleted.equals(watchedEvent.getType())) {
-            System.out.println("节点被删除，尝试注册retry服务");
+            // 节点被删除，尝试注册retry服务
             taskHandler.init();
         }
-
         // 保持对retry节点的监听
-        try {
-            taskHandler.exists();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        taskHandler.exists();
     }
 }

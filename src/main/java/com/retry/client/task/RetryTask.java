@@ -1,12 +1,14 @@
-package com.retry.scheduletask;
+package com.retry.client.task;
 
 import com.kepler.header.HeadersContext;
 import com.kepler.header.impl.LazyHeaders;
 import com.retry.config.PropertiesUtils;
-import com.retry.dao.ClientDao;
-import com.retry.entity.InvokeMsg;
-import com.retry.proxy.RetryHandler;
+import com.retry.client.dao.ClientDao;
+import com.retry.client.entity.InvokeMsg;
+import com.retry.client.proxy.RetryHandler;
 import com.retry.utils.SpringContextUtil;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -20,7 +22,9 @@ import java.util.List;
  */
 public class RetryTask implements Runnable{
 
-    private static final String TABLE = PropertiesUtils.get("client.db.table", "retry");
+    private static final String TABLE = PropertiesUtils.get("db.table", "retry");
+
+    private static final Log LOGGER = LogFactory.getLog(RetryTask.class);
 
     private ClientDao clientDao;
     private HeadersContext headersContext;
@@ -66,16 +70,8 @@ public class RetryTask implements Runnable{
             clientDao.deleteById(TABLE, i.getUuid());
 
             return res;
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            System.out.println("执行失败！！！！！！！！！！！");
+        } catch (Exception e) {
+            RetryTask.LOGGER.warn(e);
         }
 
         return null;

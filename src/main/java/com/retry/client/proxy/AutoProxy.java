@@ -1,4 +1,4 @@
-package com.retry.proxy;
+package com.retry.client.proxy;
 
 import com.kepler.service.imported.ImportedServiceFactory;
 import com.retry.utils.SpringContextUtil;
@@ -34,7 +34,6 @@ public class AutoProxy {
             TypedStringValue value = (TypedStringValue) kepler_beanDefinition.getConstructorArgumentValues().getIndexedArgumentValue(0, String.class).getValue();
             // 获取构造参数
             String interfc = value.getValue();
-
             // 构造 retry proxy
             RootBeanDefinition beanDefinition = new RootBeanDefinition(ProxyFactory.class);
             ConstructorArgumentValues args = new ConstructorArgumentValues();

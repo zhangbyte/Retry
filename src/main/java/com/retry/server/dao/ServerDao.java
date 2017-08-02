@@ -1,4 +1,4 @@
-package com.retry.dao;
+package com.retry.server.dao;
 
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Param;

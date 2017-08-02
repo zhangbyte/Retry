@@ -1,10 +1,10 @@
-package com.retry.aspect;
+package com.retry.server.aspect;
 
 import com.kepler.header.HeadersContext;
 import com.retry.annotation.Retryable;
 import com.retry.config.PropertiesUtils;
-import com.retry.dao.ServerDao;
-import com.retry.proxy.RetryHandler;
+import com.retry.server.dao.ServerDao;
+import com.retry.client.proxy.RetryHandler;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -22,7 +22,7 @@ import java.lang.reflect.Method;
 /**
  * Created by zbyte on 17-7-20.
  *
- * 服务端切面，对kepler的@Autowired进行拦截，并织入幂等判断逻辑
+ * 服务端切面，对kepler的@Autowired进行拦截，在对应接口方法上有@Retryable注解的时候织入幂等判断逻辑
  */
 @Component
 @Aspect
@@ -43,7 +43,7 @@ public class KeplerAspect {
     public void retry(){}
 
     @Around("retry()")
-    public Object around(final ProceedingJoinPoint joinPoint) {
+    public void around(final ProceedingJoinPoint joinPoint) {
         Object[] objs = joinPoint.getArgs();
         Class[] params = new Class[objs.length];
         for (int i=0; i<objs.length; i++) {
@@ -63,28 +63,27 @@ public class KeplerAspect {
             }
         }
         if (isRetry) {
-            return transactionTemplate.execute(new TransactionCallback() {
+            transactionTemplate.execute(new TransactionCallback() {
                 @Override
                 public Object doInTransaction(TransactionStatus transactionStatus) {
                     String uuid = headersContext.get().get(RetryHandler.STR_UUID);
                     int resultCount = serverDao.insert(TABLE, uuid);
                     if (resultCount > 0) {
                         try {
-                            return joinPoint.proceed();
+                            joinPoint.proceed();
                         } catch (Throwable throwable) {
                             throw new RuntimeException(throwable.getMessage());
                         }
                     }
-                    return true;
+                    return null;
                 }
             });
         } else {
             try {
-                return joinPoint.proceed();
+                joinPoint.proceed();
             } catch (Throwable throwable) {
-                throwable.printStackTrace();
+                throw new RuntimeException(throwable);
             }
         }
-        return true;
     }
 }
