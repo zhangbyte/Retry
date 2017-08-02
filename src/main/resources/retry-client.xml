@@ -36,23 +36,23 @@
 
     <!--zk监听器-->
     <bean id="retry_watcher" class="com.retry.client.zookeeper.RetryWatcher">
-        <property name="taskHandler" ref="retry_handler" />
+        <property name="taskHandler" ref="retry_taskHandler" />
     </bean>
     <bean id="retry_root_watchar" class="com.retry.client.zookeeper.RootWatcher">
         <constructor-arg ref="retry_executor" />
-        <property name="taskHandler" ref="retry_handler" />
+        <property name="taskHandler" ref="retry_taskHandler" />
     </bean>
 
-    <!--zk session-->
-    <bean id="retry_session" class="com.retry.client.zookeeper.Session" />
+    <!--ZkClient-->
+    <bean id="retry_ZkClient" class="com.retry.client.zookeeper.ZkClient">
+        <constructor-arg ref="retry_root_watchar" />
+    </bean>
 
-    <bean id="retry_handler" class="com.retry.client.task.TaskHandler">
-        <constructor-arg ref="kepler.zookeeper" />
+    <bean id="retry_taskHandler" class="com.retry.client.task.TaskHandler">
+        <constructor-arg ref="retry_ZkClient" />
         <constructor-arg ref="retry_executor" />
-        <constructor-arg ref="retry_session" />
         <constructor-arg ref="retry_task" />
         <property name="retryWatcher" ref="retry_watcher" />
-        <property name="rootWatcher" ref="retry_root_watchar" />
     </bean>
 
 </beans>
