@@ -1,7 +1,6 @@
 package com.retry.client.task;
 
 import com.retry.client.zookeeper.RetryWatcher;
-import com.retry.client.zookeeper.RootWatcher;
 import com.retry.client.zookeeper.ZkClient;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -19,21 +18,23 @@ public class TaskHandler {
 
     private final static Log LOGGER = LogFactory.getLog(TaskHandler.class);
 
-    private final ZkClient zkClient;
     private final RetryExecutor executor;
     private final RetryTask retryTask;
 
+    private ZkClient zkClient;
     private RetryWatcher retryWatcher;
 
-    public TaskHandler(ZkClient zkClient, RetryExecutor executor, RetryTask retryTask) {
-        this.zkClient = zkClient;
+    public TaskHandler(RetryExecutor executor, RetryTask retryTask) {
         this.executor = executor;
         this.retryTask = retryTask;
-        init();
     }
 
     public void setRetryWatcher(RetryWatcher retryWatcher) {
         this.retryWatcher = retryWatcher;
+    }
+
+    public void setZkClient(ZkClient zkClient) {
+        this.zkClient = zkClient;
     }
 
     /**

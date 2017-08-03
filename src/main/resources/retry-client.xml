@@ -38,18 +38,14 @@
     <bean id="retry_watcher" class="com.retry.client.zookeeper.RetryWatcher">
         <property name="taskHandler" ref="retry_taskHandler" />
     </bean>
-    <bean id="retry_root_watchar" class="com.retry.client.zookeeper.RootWatcher">
+
+    <!--ZkClient-->
+    <bean id="retry_ZkClient" class="com.retry.client.zookeeper.ZkClient">
         <constructor-arg ref="retry_executor" />
         <property name="taskHandler" ref="retry_taskHandler" />
     </bean>
 
-    <!--ZkClient-->
-    <bean id="retry_ZkClient" class="com.retry.client.zookeeper.ZkClient">
-        <constructor-arg ref="retry_root_watchar" />
-    </bean>
-
     <bean id="retry_taskHandler" class="com.retry.client.task.TaskHandler">
-        <constructor-arg ref="retry_ZkClient" />
         <constructor-arg ref="retry_executor" />
         <constructor-arg ref="retry_task" />
         <property name="retryWatcher" ref="retry_watcher" />
