@@ -18,6 +18,8 @@ import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by zbyte on 17-7-20.
@@ -30,6 +32,9 @@ import java.lang.reflect.Method;
 public class KeplerAspect {
 
     private static final String TABLE = PropertiesUtils.get("server.db.table", "retry");
+
+    // 注解缓存表
+    private static Map<String, Boolean> map = new HashMap<>();
 
     @Autowired
     @Qualifier("retry_server_transactionTemplate")
@@ -44,6 +49,40 @@ public class KeplerAspect {
 
     @Around("retry()")
     public void around(final ProceedingJoinPoint joinPoint) {
+        if (!map.containsKey(joinPoint.toString())) {
+            check(joinPoint);
+        }
+
+        if (map.get(joinPoint.toString())) {
+            transactionTemplate.execute(new TransactionCallback() {
+                @Override
+                public Object doInTransaction(TransactionStatus transactionStatus) {
+                String uuid = headersContext.get().get(RetryHandler.STR_UUID);
+                int resultCount = serverDao.insert(TABLE, uuid);
+                if (resultCount > 0) {
+                    try {
+                        joinPoint.proceed();
+                    } catch (Throwable throwable) {
+                        throw new RuntimeException(throwable.getMessage());
+                    }
+                }
+                return null;
+                }
+            });
+        } else {
+            try {
+                joinPoint.proceed();
+            } catch (Throwable throwable) {
+                throw new RuntimeException(throwable);
+            }
+        }
+    }
+
+    /**
+     * 对注解扫描进行缓存
+     * @param joinPoint
+     */
+    private void check(ProceedingJoinPoint joinPoint) {
         Object[] objs = joinPoint.getArgs();
         Class[] params = new Class[objs.length];
         for (int i=0; i<objs.length; i++) {
@@ -56,34 +95,13 @@ public class KeplerAspect {
             try {
                 Method method = interfc.getMethod(joinPoint.getSignature().getName(), params);
                 if (method.getAnnotation(Retryable.class) != null) {
-                    isRetry = true;
-                    break;
+                    map.put(joinPoint.toString(), true);
+                    return;
                 }
             } catch (NoSuchMethodException e) {
             }
         }
-        if (isRetry) {
-            transactionTemplate.execute(new TransactionCallback() {
-                @Override
-                public Object doInTransaction(TransactionStatus transactionStatus) {
-                    String uuid = headersContext.get().get(RetryHandler.STR_UUID);
-                    int resultCount = serverDao.insert(TABLE, uuid);
-                    if (resultCount > 0) {
-                        try {
-                            joinPoint.proceed();
-                        } catch (Throwable throwable) {
-                            throw new RuntimeException(throwable.getMessage());
-                        }
-                    }
-                    return null;
-                }
-            });
-        } else {
-            try {
-                joinPoint.proceed();
-            } catch (Throwable throwable) {
-                throw new RuntimeException(throwable);
-            }
-        }
+
+        map.put(joinPoint.toString(), false);
     }
 }

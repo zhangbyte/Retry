@@ -16,6 +16,8 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -28,6 +30,9 @@ public class RetryHandler implements InvocationHandler {
     private static final String TABLE = PropertiesUtils.get("client.db.table", "retry");
 
     private static final Log LOGGER = LogFactory.getLog(RetryHandler.class);
+
+    // 注解缓存表
+    private static Map<String, Boolean> map = new HashMap<>();
 
     public static final String STR_UUID = "UUID";
 
@@ -43,7 +48,15 @@ public class RetryHandler implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args){
-        if (method.getAnnotation(Retryable.class) == null || headersContext.get().get(STR_UUID) != null) {
+        if (!map.containsKey(method.toString())) {
+            if (method.getAnnotation(Retryable.class) == null) {
+                map.put(method.toString(), false);
+            } else {
+                map.put(method.toString(), true);
+            }
+        }
+
+        if (!map.get(method.toString()) || headersContext.get().get(STR_UUID) != null) {
             try {
                 return method.invoke(obj, args);
             } catch (Exception e) {
