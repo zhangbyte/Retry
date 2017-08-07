@@ -15,6 +15,7 @@ import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.UUID;
 
 /**
@@ -62,11 +63,14 @@ public class RetryHandler implements InvocationHandler {
                     out.writeObject(args);
                     out.close();
                     clientDao.insert(TABLE, uuid, obj.getClass().getInterfaces()[0].getName(),
-                            method.getName(), byteArgs.toByteArray());
+                            method.getName(), byteArgs.toByteArray(), Arrays.toString(args));
                 } catch (IOException e1) {
                     RetryHandler.LOGGER.warn(e1);
                     throw new RetryException(e1.getMessage());
                 }
+            } finally {
+                // 删除使用过的headers
+                headersContext.get().delete(STR_UUID);
             }
         }
 

@@ -19,25 +19,25 @@ public interface ClientDao {
      * @param args
      * @return
      */
-    @Insert("insert into ${tablename} (uuid, interfc, method, args) values(#{uuid}, #{interfc}, #{method}, #{args})")
+    @Insert("insert into ${tablename} (uuid, interfc, method, args, args_str) values(#{uuid}, #{interfc}, #{method}, #{args}, #{args_str})")
     int insert(@Param("tablename") String tablename, @Param("uuid") String uuid,
-               @Param("interfc") String interfc, @Param("method") String method, @Param("args") byte[] args);
+               @Param("interfc") String interfc, @Param("method") String method, @Param("args") byte[] args, @Param("args_str") String args_str);
 
     /**
      * 查询远端调用信息
      * @param tablename
      * @return
      */
-    @Select("select uuid,interfc,method,args from ${tablename}")
+    @Select("select uuid,interfc,method,args from ${tablename} where state = 0")
     List<InvokeMsg> selectAll(@Param("tablename") String tablename);
 
     /**
-     * 删除已处理的远端调用
+     * 逻辑删除已处理的远端调用
      * @param tablename
      * @param uuid
      * @return
      */
-    @Delete("delete from ${tablename} where uuid = #{uuid}")
+    @Update("update ${tablename} set state = 1 where uuid = #{uuid}")
     int deleteById(@Param("tablename") String tablename, @Param("uuid") String uuid);
 
     /**

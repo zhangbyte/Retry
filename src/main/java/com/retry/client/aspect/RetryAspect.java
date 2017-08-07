@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.util.Arrays;
 import java.util.UUID;
 
 /**
@@ -65,11 +66,15 @@ public class RetryAspect {
                     out.writeObject(joinPoint.getArgs());
                     out.close();
                     String interfc = joinPoint.getTarget().getClass().getInterfaces()[0].getName();
-                    clientDao.insert(TABLE, uuid, interfc, joinPoint.getSignature().getName(), byteArgs.toByteArray());
+                    clientDao.insert(TABLE, uuid, interfc, joinPoint.getSignature().getName(),
+                            byteArgs.toByteArray(), Arrays.toString(joinPoint.getArgs()));
                 } catch (IOException e) {
                     RetryAspect.LOGGER.warn(e);
                     throw new RetryException(e.getMessage());
                 }
+            } finally {
+                // 删除使用过的headers
+                headersContext.get().delete(RetryHandler.STR_UUID);
             }
         }
     }
