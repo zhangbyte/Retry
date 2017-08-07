@@ -1,12 +1,10 @@
 package com.retry.client.proxy;
 
 import com.kepler.service.imported.ImportedServiceFactory;
-import com.retry.utils.SpringContextUtil;
-import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.beans.factory.config.ConstructorArgumentValues;
-import org.springframework.beans.factory.config.RuntimeBeanReference;
-import org.springframework.beans.factory.config.TypedStringValue;
-import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.config.*;
+import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 
 /**
@@ -14,11 +12,17 @@ import org.springframework.beans.factory.support.RootBeanDefinition;
  *
  * 自动生成kepler代理的代理
  */
-public class AutoProxy {
+public class AutoProxy implements BeanDefinitionRegistryPostProcessor {
 
-    private DefaultListableBeanFactory beanFactory = (DefaultListableBeanFactory) SpringContextUtil.getApplicationContext().getAutowireCapableBeanFactory();
+    private BeanDefinitionRegistry registry = null;
 
-    public AutoProxy() {
+    @Override
+    public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
+        this.registry = registry;
+    }
+
+    @Override
+    public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
         // 获取容器中 kepler proxy 的注册信息
         // <bean id="serviceB" class="com.kepler.service.imported.ImportedServiceFactory" parent="kepler.service.imported.abstract">
         //    <constructor-arg index="0" value="com.retrykepler.client.service.ServiceB" />
@@ -42,9 +46,10 @@ public class AutoProxy {
             args.addIndexedArgumentValue(2, new RuntimeBeanReference("kepler.header.context"));
             args.addIndexedArgumentValue(3, new RuntimeBeanReference("clientDao"));
             beanDefinition.setConstructorArgumentValues(args);
-           // 设置优先注入
+            // 设置优先注入
             beanDefinition.setPrimary(true);
-            beanFactory.registerBeanDefinition(beanId+"_proxy", beanDefinition);
+
+            registry.registerBeanDefinition(beanId+"_proxy", beanDefinition);
         }
     }
 }
