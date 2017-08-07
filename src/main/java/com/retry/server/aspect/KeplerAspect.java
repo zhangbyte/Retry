@@ -29,10 +29,10 @@ import java.lang.reflect.Method;
 @Order(Integer.MAX_VALUE)
 public class KeplerAspect {
 
-    private static final String TABLE = PropertiesUtils.get("db.table", "retry");
+    private static final String TABLE = PropertiesUtils.get("server.db.table", "retry");
 
     @Autowired
-    @Qualifier("retry_transactionTemplate")
+    @Qualifier("retry_server_transactionTemplate")
     private TransactionTemplate transactionTemplate;
     @Autowired
     private ServerDao serverDao;

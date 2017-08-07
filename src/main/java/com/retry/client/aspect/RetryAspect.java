@@ -30,7 +30,7 @@ import java.util.UUID;
 @Aspect
 public class RetryAspect {
 
-    private static final String TABLE = PropertiesUtils.get("db.table", "retry");
+    private static final String TABLE = PropertiesUtils.get("client.db.table", "retry");
 
     private static final Log LOGGER = LogFactory.getLog(RetryAspect.class);
 

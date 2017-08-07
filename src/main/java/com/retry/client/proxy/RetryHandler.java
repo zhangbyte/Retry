@@ -25,7 +25,7 @@ import java.util.UUID;
  */
 public class RetryHandler implements InvocationHandler {
 
-    private static final String TABLE = PropertiesUtils.get("db.table", "retry");
+    private static final String TABLE = PropertiesUtils.get("client.db.table", "retry");
 
     private static final Log LOGGER = LogFactory.getLog(RetryHandler.class);
 

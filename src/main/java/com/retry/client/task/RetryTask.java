@@ -22,7 +22,7 @@ import java.util.List;
  */
 public class RetryTask implements Runnable{
 
-    private static final String TABLE = PropertiesUtils.get("db.table", "retry");
+    private static final String TABLE = PropertiesUtils.get("client.db.table", "retry");
 
     private static final Log LOGGER = LogFactory.getLog(RetryTask.class);
 
@@ -40,9 +40,13 @@ public class RetryTask implements Runnable{
     @Override
     public void run() {
         // 从数据库中查询出需要retry的数据
-        List<InvokeMsg> invokeMsgs = clientDao.selectAll(TABLE);
-        for (InvokeMsg i : invokeMsgs) {
-            invoke(i);
+        try {
+            List<InvokeMsg> invokeMsgs = clientDao.selectAll(TABLE);
+            for (InvokeMsg i : invokeMsgs) {
+                invoke(i);
+            }
+        } catch (Exception e) {
+            RetryTask.LOGGER.error(e);
         }
     }
 

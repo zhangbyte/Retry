@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans"
+<beans profile="prod"
+       xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
        xmlns:aop="http://www.springframework.org/schema/aop"
@@ -14,10 +15,41 @@
     <context:component-scan base-package="com.retry.server.aspect" />
     <aop:aspectj-autoproxy proxy-target-class="true"/>
 
-    <!--mybatis-->
-    <import resource="retry-db.xml" />
+
+    <!--db-->
+    <!--引入数据库相关配置 !order指定其优先加载，ignore-unresolvable指定忽略不能匹配项-->
+    <context:property-placeholder location="classpath:retry.conf" order="1" ignore-unresolvable="true"/>
+
+    <bean id="retry_server_dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+        <property name="driverClass" value="${server.db.driverClass}" />
+        <property name="jdbcUrl" value="${server.db.jdbcUrl}" />
+        <property name="user" value="${server.db.user}" />
+        <property name="password" value="${server.db.password}"/>
+
+        <property name="minPoolSize" value="${server.c3p0.minPoolSize:5}" />
+        <property name="maxPoolSize" value="${server.c3p0.maxPoolSize:30}" />
+        <property name="initialPoolSize" value="${server.c3p0.initialPoolSize:10}" />
+        <property name="maxIdleTime" value="${server.c3p0.maxIdleTime:60}" />
+        <property name="idleConnectionTestPeriod" value="${server.c3p0.idleConnectionTestPeriod:60}" />
+        <property name="acquireRetryAttempts" value="${server.c3p0.acquireRetryAttempts:30}" />
+    </bean>
+
+    <bean id="retry_server_sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="retry_server_dataSource" />
+    </bean>
+
+    <bean id="retry_server_transactionManager"
+          class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="retry_server_dataSource" />
+    </bean>
+
+    <bean id="retry_server_transactionTemplate"
+          class="org.springframework.transaction.support.TransactionTemplate">
+        <property name="transactionManager" ref="retry_server_transactionManager" />
+    </bean>
+
     <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
-        <property name="sqlSessionFactoryBeanName" value="retry_sqlSessionFactory" />
+        <property name="sqlSessionFactoryBeanName" value="retry_server_sqlSessionFactory" />
         <property name="basePackage" value="com.retry.server.dao" />
     </bean>
 
